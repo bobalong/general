@@ -1,18 +1,17 @@
 #include <ctype.h>
 
-#define bit9600Delay 84
-#define halfBit9600Delay 42
+
 #define bit4800Delay 188
 #define halfBit4800Delay 94
 
-byte rx = 5;   // GPS 25LVC tx line connected to pin 5 on Arduino (4800baud)
+byte rx = 5;   // Ro Wind connected to pin 5 of mega (4800baud)
 byte SWval;
 char line[80]="";
 
 void setup() {
   pinMode(rx,INPUT);
   digitalWrite(13,HIGH);     // turn on debugging LED
-  Serial.begin(9600);        // Setup USB serial port monitor to 4800baud
+  Serial.begin(9600);        // Setup USB serial port monitor to 9600baud
 }
 
 int SWread()
@@ -37,7 +36,7 @@ void getLine()
 {
   int i = 0;
   line[0] = SWread();
-  if (line[0] == '$' )//&& line[1] == 'I' && line[2] == 'I') //string starts with $
+  if (line[0] == '$' ) //string starts with '$'
   {
     i++;
     line[i] = SWread();
@@ -56,6 +55,7 @@ void loop()
   getLine();
   if (line[1] == 'I' && line[2] == 'I'){
   Serial.println(line);
+  Serial.println("ping");
   }
 }
  
