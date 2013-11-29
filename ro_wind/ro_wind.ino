@@ -26,9 +26,9 @@ int SWread()
      val |= (digitalRead(rx) == LOW) << offset;
     }
     //wait for stop bit + extra
-    delayMicroseconds(bit4800Delay);
-    delayMicroseconds(bit4800Delay);
-    return val & 0x7F; // for some reason high bit doesn't come out correctly
+    delayMicroseconds(bit4800Delay*2);
+
+    return val;// & 0x7F; // for some reason high bit doesn't come out correctly
   }
 }
 
@@ -40,7 +40,7 @@ void getLine()
   {
     i++;
     line[i] = SWread();
-    while(line[i] != 13 & i<80) //carriage return or max size
+    while(line[i] != '\n' & i<80) //carriage return or max size
     {
       i++;
       line[i] = SWread();
