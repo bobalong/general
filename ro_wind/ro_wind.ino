@@ -1,8 +1,8 @@
 #include <ctype.h>
 
-
 #define bit4800Delay 188
 #define halfBit4800Delay 94
+#define front 180
 
 byte rx = 5;   // Ro Wind connected to pin 5 of mega (4800baud)
 byte SWval;
@@ -54,8 +54,26 @@ void loop()
 {
   getLine();
   if (line[1] == 'I' && line[2] == 'I'){
-  Serial.println(line);
-  Serial.println("ping");
+    char *s = line;
+    char *str;
+    int i = 0;
+    float ang;
+    float wsp;
+    boolean fromRight = false;
+    while ((str = strtok_r( s, ",", &s )) != NULL )
+    {
+      if ( i == 1 )
+      {
+        ang = atof( str );
+        if ( ang < front )
+        {
+          fromRight = true;
+        }
+      }else if ( i == 3 )
+      {
+        wsp = atof( str );
+      }
+      i++;
+    }
   }
 }
- 
