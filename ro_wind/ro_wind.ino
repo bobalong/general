@@ -4,20 +4,27 @@
 #define halfBit4800Delay 94
 #define front 180
 
-byte rx = 5;   // Ro Wind connected to pin 5 of mega (4800baud)
+typedef struct jingle{
+ int speed;
+ int direction;
+}bell;
+
+byte rx = 5; // Ro Wind connected to pin 5 of mega (4800baud)
 byte SWval;
-char line[80]="";
 
 void setup() {
   pinMode(rx,INPUT);
-  digitalWrite(13,HIGH);     // turn on debugging LED
-  Serial.begin(9600);        // Setup USB serial port monitor to 9600baud
+  digitalWrite(13,HIGH); // turn on debugging LED
+  Serial.begin(9600); // Setup USB serial port monitor to 9600baud
 }
 
 int SWread()
 {
+  
   byte val = 0;
   while (digitalRead(rx) == LOW);
+  
+   
   //wait for start bit
   if (digitalRead(rx) == HIGH) {
     delayMicroseconds(halfBit4800Delay);
@@ -32,10 +39,12 @@ int SWread()
   }
 }
 
-void getLine()
+char* getLine()
 {
+  char line[80]="";
   int i = 0;
   line[0] = SWread();
+
   if (line[0] == '$' ) //string starts with '$'
   {
     i++;
@@ -46,34 +55,57 @@ void getLine()
       line[i] = SWread();
     }
     line[i+1] = 0; //make end to string
-  }
+  } 
+ 
+  return line;
 } // end getLine()
 
-
-void loop()
-{
-  getLine();
+struct jingle get_wind(){
+  char* line = getLine();
+  
+   Serial.print("lol: ");
+  Serial.println(line);
+  
+  struct jingle current;
+  boolean got_wind = false;
+  while (!got_wind) {
   if (line[1] == 'I' && line[2] == 'I'){
     char *s = line;
     char *str;
     int i = 0;
-    float ang;
-    float wsp;
+    
     boolean fromRight = false;
     while ((str = strtok_r( s, ",", &s )) != NULL )
     {
+      Serial.println(str);
       if ( i == 1 )
       {
-        ang = atof( str );
-        if ( ang < front )
+        got_wind = true;
+        current.direction = atof( str );
+        if ( current.direction < front )
         {
           fromRight = true;
         }
       }else if ( i == 3 )
       {
-        wsp = atof( str );
+        current.speed = atof( str );
       }
       i++;
     }
   }
+ }
+  return current;
+}
+
+void loop()
+{
+  struct jingle the_wind = get_wind();
+
+  
+  
+ Serial.println(the_wind.direction);
+  Serial.println(the_wind.speed);
+  Serial.println();
+  
+  //delay(500);
 }
