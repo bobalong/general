@@ -1,16 +1,19 @@
 #include <ctype.h>
+#include "wind.h"
 
 #define bit4800Delay 188
 #define halfBit4800Delay 94
 #define front 180
 
-typedef struct jingle{
- int speed;
- int direction;
-}bell;
 
-byte rx = 5; // Ro Wind connected to pin 5 of mega (4800baud)
+
+
+byte rx = 5; // Ro foo connected to pin 5 of mega (4800baud)
 byte SWval;
+
+
+
+
 
 void setup() {
   pinMode(rx,INPUT);
@@ -60,13 +63,13 @@ char* getLine()
   return line;
 } // end getLine()
 
-struct jingle get_wind(){
+wind get_wind(){
   char* line = getLine();
   
    Serial.print("lol: ");
   Serial.println(line);
   
-  struct jingle current;
+  wind current;
   boolean got_wind = false;
   while (!got_wind) {
   if (line[1] == 'I' && line[2] == 'I'){
@@ -99,7 +102,7 @@ struct jingle get_wind(){
 
 void loop()
 {
-  struct jingle the_wind = get_wind();
+  wind the_wind = get_wind();
 
   
   
