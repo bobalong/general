@@ -1,6 +1,5 @@
-
 /*
- * HMC6343.cpp - A library for using the HMC6343 compass with a ardunio.
+ * HMC6343.cpp - A library for using the HMC6343 compass with a arduino.
  * 
  * Author: Jordan Springett
  * GitHub: https://github.com/JSpringett
