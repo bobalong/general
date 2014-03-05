@@ -1,6 +1,5 @@
-
 /*
- * HMC6343.h - A library for using the HMC6343 compass with a ardunio.
+ * HMC6343.h - A library for using the HMC6343 compass with a arduino.
  */
 
 #ifndef HMC6343_H
