@@ -18,67 +18,28 @@ HMC6343::HMC6343() {
 	Wire.begin();
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Bearing
-
 /*=======================================================
- * Returns the heading in degress of a HMC6343 compass. 
+ * Returns the bearing in degress of a HMC6343 compass.
+ * Includes heading, pitch, and roll.
  */
-float HMC6343::GetHeading() {
-	 float heading, pitch, roll;
-	 ReadCompass(HMC6343_BEARING_REG, heading, pitch, roll);
-	 return heading/10;
-	}
-
-/*=======================================================
- * Returns the pitch in degress of a HMC6343 compass. 
- */
-float HMC6343::GetPitch() {
-	 float heading, pitch, roll;
-	 ReadCompass(HMC6343_BEARING_REG, heading, pitch, roll);
-	 return pitch/10;
-	}
-
-/*=======================================================
- * Returns the roll in degress of a HMC6343 compass. 
- */
-float HMC6343::GetRoll() {
-	 float heading, pitch, roll;
-	 ReadCompass(HMC6343_BEARING_REG, heading, pitch, roll);
-	 return roll/10;
-	}
-
-
-///////////////////////////////////////////////////////////////////////////////
-// Accelerometer
-
-
-/*=======================================================
- * Returns the acceleration in the x axis of a HMC6343 compass. 
- */
-float HMC6343::GetXAcc() {
-	float x, y, z;
-	ReadCompass(HMC6343_ACCELEROMETER_REG, x, y, z);
-	return x / 10;
+void HMC6343::GetBearing(float& heading, float& pitch, float& roll) {
+	ReadCompass(HMC6343_BEARING_REG, heading, pitch, roll);
+	heading = heading/10;
+	pitch = pitch/10;
+	roll = roll/10;
 }
 
 /*=======================================================
- * Returns the acceleration in the x axis of a HMC6343 compass. 
+ * Returns the acceleration in the x,y, and z axis of a 
+ * HMC6343 compass. 
  */
-float HMC6343::GetYAcc() {
-	float x, y, z;
+void HMC6343::GetAcceleration(float& x, float& y, float& z) {
 	ReadCompass(HMC6343_ACCELEROMETER_REG, x, y, z);
-	return y / 10;
+	x /= 10;
+	y /= 10;
+	z /= 10;
 }
 
-/*=======================================================
- * Returns the acceleration in the x axis of a HMC6343 compass. 
- */
-float HMC6343::GetZAcc() {
-	float x, y, z;
-	ReadCompass(HMC6343_ACCELEROMETER_REG, x, y, z);
-	return z / 10;
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////
