@@ -17,10 +17,13 @@ void loop() {
 	UpdateWind();
 	Serial.print("WindDir: ");
 	Serial.println(windDir);
+	Serial.print("WindSpeed: ");
+	Serial.println(windSpeed);
+       	delay(1000);
 }
 
 ///*=================================================================
-//* Updates the wind fields.
+// * Updates the wind fields.
 // */
 void UpdateWind() {
 	char* line = GetLine();
@@ -50,32 +53,37 @@ void UpdateWind() {
 	}
 }
 
+
 ///*=================================================================
-//* Returns the line produced by the ro-wind.
+// * Returns the wind data string produced by the ro-wind.
 // */
 char* GetLine() {
-	char line[80] = "";
+	char line[80];
 
+	// Search for the correct rowind data line.
 	bool gotData = false;
 	while(!gotData) {
-		line[0] = rowind.read();
+		char c = rowind.read();
 
-		// Ro-wind data starts with a $ char.
-		if(line[0] == '$') {
-			int i = 1;
-			char c = rowind.read();
-			while(c != '\n' & i<80) //carriage return or max size
-			{		
-	  			i++;
-	  			line[i] = c;
-	  			c = rowind.read();
+		// Start of a rowind sentence
+		if(c == '$') {
+			int i = 0;
+			while(c != '\n' & i < 80) {
+				line[i] = c;
+				c = rowind.read();
+				i++;
 			}
 
-			gotData = true;
-
-			// Debug print	
-			Serial.print("Rowind line: ");
-			Serial.println(line);
+			// Data we want starts with $IIMWV
+			if(line[1] == 'I') {
+				gotData = true;
+				Serial.print("Rowind (R):");
+				Serial.println(line);
+			}
+			else {
+				Serial.print("Rowind (W):");
+				Serial.println(line);
+			}
 		}
 	}
 
