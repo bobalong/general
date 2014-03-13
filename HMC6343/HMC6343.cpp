@@ -88,8 +88,8 @@ float HMC6343::GetZAcc() {
 /*=======================================================
  * Returns a byte from a register in the I2C device.
  *
- * @param register 	The register on the HMC6343 we want to 
- *						access.
+ * @param register 		The register on the HMC6343 we want to 
+ *				access.
  * @param v0			The first value that is returned from the HMC.
  * @param v1			The second value that is returned from the HMC.
  * @param v2			The third value that is returned from the HMC.
@@ -98,20 +98,20 @@ void HMC6343::ReadCompass(byte register, float& v0, float& v1, float& v2 ) {
 	byte high, low;
 
 	// Start the communication with the I2C device
-		Wire.beginTransmission(HMC6343_ADDRESS);
+	Wire.beginTransmission(HMC6343_ADDRESS);
 
-		// Send the address of the registers we want to read
-		Wire.write(HMC6343_ACCELEROMETER_REG);
-		Wire.endTransmission();
-		Wire.requestFrom(HMC6343_ADDRESS, 6);
+	// Send the address of the registers we want to read
+	Wire.write(HMC6343_ACCELEROMETER_REG);
+	Wire.endTransmission();
+	Wire.requestFrom(HMC6343_ADDRESS, 6);
 
 	 // Wait for the data
-		while(Wire.available() < 1);
+	while(Wire.available() < 1);
 
-		// Read the data
-		v0 = ReadValue();
-		v1 = ReadValue();
-		v2 = ReadValue();
+	// Read the data
+	v0 = ReadValue();
+	v1 = ReadValue();
+	v2 = ReadValue();
 }
 
 /*=======================================================
@@ -122,7 +122,7 @@ float HMC6343::ReadValue() {
 	byte high, low;
 
 	 high = Wire.read();
-			low = Wire.read();
+	low = Wire.read();
 
 	return CombineByte(high, low);
 }
