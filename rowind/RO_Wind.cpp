@@ -28,7 +28,7 @@ RO_Wind::RO_Wind(uint8_t rx, uint8_t tx)
   * Updates the wind data fields, WindSpeed and WindDirection with 
   * data from the Ro Wind.
   */
-void RO_Wind::UpdateWind() {
+void RO_Wind::UpdateWind(double& windDir, double& windSpeed) {
 	char* line = GetData();
 
 	// Parse line
@@ -45,11 +45,11 @@ void RO_Wind::UpdateWind() {
 	  	if ( i == 1 )
 	 	{
 			// Inteprets the data as a floating point and then returns the wind direction as a double.
-			WindDirection = atof( str );
+			windDir = atof( str );
 		// fourth token contains wind speed
 	  	}else if ( i == 3 )
 	 	 {
-			WindSpeed = atof( str );
+			windSpeed= atof( str );
 		  }
 	  	i++;
 	}

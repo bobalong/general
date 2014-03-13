@@ -13,14 +13,12 @@
 #include "Arduino.h"
  #include "SoftwareSerial.h"
 
-#define ROWIND_SERIAL_SPEED 48000
+#define ROWIND_SERIAL_SPEED 4800
 
  class RO_Wind {
  public:
  	RO_Wind(uint8_t, uint8_t);
- 	void UpdateWind();
- 	double WindDirection;
- 	double WindSpeed;
+ 	void GetWind(double& windDir, double& windSpeed);
  private:
  	char* GetData();
  	SoftwareSerial m_Serial;
