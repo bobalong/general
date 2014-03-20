@@ -1,7 +1,7 @@
 #include <SoftwareSerial.h>
 
 // Software serial to the ro-wind
-SoftwareSerial rowind(5,0);
+SoftwareSerial rowind(2,3);
 
 // Wind data
 float windDir;
@@ -14,12 +14,16 @@ void setup() {
 }
 
 void loop() {
+        //Serial.write(rowind.read());
+                
+        //Serial.write(GetLine());
+        
 	UpdateWind();
+        //Serial.println("Found");
 	Serial.print("WindDir: ");
 	Serial.println(windDir);
 	Serial.print("WindSpeed: ");
 	Serial.println(windSpeed);
-       	delay(1000);
 }
 
 ///*=================================================================
@@ -37,7 +41,7 @@ void UpdateWind() {
 	while ((str = strtok_r( s, ",", &s )) != NULL )
 	{
 		// Prints the token we are currently working on
-	  	Serial.println(str);
+	  	//Serial.println(str);
 	  	// Second token contains the windw direction
 	  	if ( i == 1 )
 	 	{
@@ -64,25 +68,28 @@ char* GetLine() {
 	bool gotData = false;
 	while(!gotData) {
 		char c = rowind.read();
+                delay(3);
 
 		// Start of a rowind sentence
 		if(c == '$') {
 			int i = 0;
+
+                        // Reads a line
 			while(c != '\n' & i < 80) {
 				line[i] = c;
 				c = rowind.read();
+                                delay(3);
 				i++;
 			}
 
 			// Data we want starts with $IIMWV
 			if(line[1] == 'I') {
 				gotData = true;
-				Serial.print("Rowind (R):");
-				Serial.println(line);
+				//Serial.println(line);
 			}
 			else {
-				Serial.print("Rowind (W):");
-				Serial.println(line);
+				//Serial.println(line);
+                                //Serial.println();
 			}
 		}
 	}
