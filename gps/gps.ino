@@ -35,7 +35,7 @@ void displayInfo()
   Serial.print("LONG=");
   Serial.println(gps.location.lng());
   Serial.print("DATE=");
-  Serial.println(gps.date.day() + "/" + gps.date.month() + "/" + gps.date.year());
+  Serial.println(gps.date.day() + "/" + gps.date.month() + "/" + gps.date.year()); // format = "DD/MM/YYYY"
   Serial.print("TIME=");
   Serial.println(gps.time.hour() + ":" gps.time.minute());
   // delete as appropiate
