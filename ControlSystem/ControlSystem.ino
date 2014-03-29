@@ -36,35 +36,48 @@ uint8_t gps_minutes;
 
 // Autonomous sailing
 int m_DestHeading;
+//int m_TestHeading = 300;
+//int m_TestDest = 360;
 
 /////////////////////////////////////////////////////////////////
 void setup() {
-	Serial.begin(9600);
-	rowind.begin(4800);
-	ss.begin(4800);
-	
-	// Get starting boat heading
-	UpdateCompass();
-	m_DestHeading = C_Heading;
-
-	rudder.attach(7);
+  Serial.begin(9600);
+  rowind.begin(4800);
+  ss.begin(4800);
+ 	
+  // Light up debugger LED
+  pinMode(13, OUTPUT);
+  digitalWrite(13, HIGH);
+        
+  // Get starting boat heading
+  UpdateCompass();
+  m_DestHeading = C_Heading;
+  Serial.println(m_DestHeading);
+ 
+  rudder.attach(9);
+  rudder.write(90);
 }
 
 /////////////////////////////////////////////////////////////////
 void loop() {
-				ss.listen();
-	// Update data
-		UpdateCompass();
-				UpdateGPS();
-				delay(77);
-		UpdateWind();
-				//Serial.println("Wind done");  
-								
-		// Log it
-		LogData();
-
-		// Don't update or log for 5 seconds
-		delay(500);
+  // LED debugger
+  digitalWrite(13, HIGH);
+  ss.listen();
+  // Update data
+  UpdateCompass();
+  UpdateGPS();
+  delay(77);
+  UpdateWind();  
+ 				
+  KeepHeading();
+  				
+  // Log it
+  LogData();
+  
+  digitalWrite(13,LOW);
+  
+  // Don't update or log for 5 seconds
+  delay(500);
 }
 
 /////////////////////////////////////////////////////////////////
@@ -72,81 +85,66 @@ void loop() {
 /////////////////////////////////////////////////////////////////
 
 void UpdateCompass() {
-	float pitch = 0;
-	Compass.GetBearing(C_Heading, pitch, C_Roll);
+  float pitch = 0;
+  Compass.GetBearing(C_Heading, pitch, C_Roll);
 }
 
 
 void UpdateGPS(){
-	while (ss.available()>0)
-	{  
-			delay(1);
-			if (gps.encode(ss.read()))
-			{
-					gps_lat = gps.location.lat();
-					gps_long = gps.location.lng();
-					gps_day = gps.date.day();
-					gps_month = gps.date.month();
-					gps_minutes = gps.time.minute();
-					gps_hours = gps.time.hour();
-			}
-	}   
+  while (ss.available()>0)
+  {  
+    delay(1);
+    if (gps.encode(ss.read()))
+    {
+      // Debugger LED
+      digitalWrite(13, LOW);
+      gps_lat = gps.location.lat();
+      gps_long = gps.location.lng();
+      gps_day = gps.date.day();
+      gps_month = gps.date.month();
+      gps_minutes = gps.time.minute();
+      gps_hours = gps.time.hour();
+      }
+  }   
 }
 /////////////////////////////////////////////////////////////
 // Logs all the data
 void LogData() {
-	// Print out number of ms since start.
-		Serial.print("Time: ");
-		Serial.println(millis());
-
-		// Print compass data
-		Serial.print("Heading: ");
-		Serial.print(C_Heading);
-		Serial.print(" m_Roll:");
-		Serial.println(C_Roll);
-
-		// print wind data
-		Serial.print("Wind Dir: ");
-		Serial.print(m_WindDir);
-		Serial.print(" Wind Speed: ");
-		Serial.println(m_WindSpeed);
-				
-				// print gps data
-				Serial.print("Position: ");
-				Serial.print(gps_long);
-				Serial.print(",");
-				Serial.println(gps_lat);
-				
-				Serial.print("Date: ");
-				Serial.print(gps_day);
-				Serial.print("/");
-				Serial.println(gps_month);
-				
-				Serial.print("Time: ");
-				Serial.print(gps_hours);
-				Serial.print(":");
-				Serial.println(gps_minutes);
-				
-		// Print gap
-				Serial.println();
-				Serial.println();
+  // Boat Heading
+  Serial.print("bhead="); Serial.print(C_Heading); Serial.print(" ");
+  // Boat Wind Dir
+  Serial.print("wind="); Serial.print(m_WindDir); Serial.print(" ");
+  // Wind speed
+  Serial.print("windSpd="); Serial.print(m_WindSpeed); Serial.print(" ");
+  // Lat
+  Serial.print("lat="); Serial.print(gps_lat); Serial.print(" ");
+  // Long
+  Serial.print("lon="); Serial.print(gps_long); Serial.print(" ");
+  // TIme
+  Serial.print("time="); Serial.print(gps_hours); Serial.print(":"); Serial.print(gps_minutes); Serial.print(" ");
 }
 
 /////////////////////////////////////////////////////////////
 // Tries to keep the boat heading in the direction it was 
+
 // facing when started.
 void KeepHeading() {
-		// Work out distance off the destination heading
-		int headingOff = m_DestHeading - C_Heading;
-
-		// On course
-		if(headingOff == 0) {
-			rudder.write(90);
-			return;
-		}
-
-		// Rotate the rudder in the opposite direction by that amount
-		rudder.write(90 + (headingOff / 2));
+  int headingOff = (int)C_Heading - m_DestHeading;
+  
+  if(headingOff > -1 && headingOff < 1) {
+    rudder.write(90);
+    return;
+  }
+  
+  if(C_Heading >= 0 && C_Heading < 180) {
+    float pOff = (float)headingOff / 180.0f;
+    int rot = 90 + (int)(pOff * 90);
+    rudder.write(rot);
+  } else {
+    float pOff = (float)headingOff / 180.0f;
+    int rot = 90 - (int)(pOff * 90);
+    rudder.write(rot);
+  }
 }
 
 
@@ -159,8 +157,8 @@ void KeepHeading() {
 // * Updates the wind fields.
 // */
 void UpdateWind() {
-				rowind.listen();
-	char* line = GetLine();
+  rowind.listen();
+  char* line = GetLine();
 
 	// Parse line
 	char *s = line;
@@ -171,19 +169,19 @@ void UpdateWind() {
 	while ((str = strtok_r( s, ",", &s )) != NULL )
 	{
 		// Prints the token we are currently working on
-			//Serial.println(str);
-			// Second token contains the windw direction
-			if ( i == 1 )
+        	//Serial.println(str);
+		// Second token contains the windw direction
+		if ( i == 1 )
 		{
-			// Inteprets the data as a floating point and then returns the wind direction as a double.
+	          	// Inteprets the data as a floating point and then returns the wind direction as a double.
 			m_WindDir = atof( str );
 
 		// fourth token contains wind speed
-			}else if ( i == 3 )
+		}else if ( i == 3 )
 		 {
 			m_WindSpeed= atof( str );
-			}
-			i++;
+		}
+		i++;
 	}
 }
 
@@ -198,17 +196,16 @@ char* GetLine() {
 	bool gotData = false;
 	while(!gotData) {
 		char c = rowind.read();
-								delay(3);
-
+		delay(3);
 		// Start of a rowind sentence
 		if(c == '$') {
 			int i = 0;
 
-												// Reads a line
+	        	// Reads a line
 			while(c != '\n' & i < 80) {
 				line[i] = c;
 				c = rowind.read();
-																delay(3);
+				delay(3);
 				i++;
 			}
 
@@ -219,7 +216,7 @@ char* GetLine() {
 			}
 			else {
 				//Serial.println(line);
-																//Serial.println();
+				//Serial.println();
 			}
 		}
 	}
